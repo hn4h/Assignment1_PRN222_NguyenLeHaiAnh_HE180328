@@ -1,0 +1,49 @@
+﻿@model NguyenLeHaiAnh_HE180328_Assignment1.DataAccess.Models.Category
+
+@Html.ValidationSummary(false, "", new { @class = "text-danger" })
+
+<form asp-action="@(Model.CategoryId == 0 ? "Create" : "Edit")" method="post" data-ajax="true">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="CategoryId" />
+
+    <div class="modal-header">
+        <h5 class="modal-title">@(Model.CategoryId == 0 ? "Create Category" : "Edit Category")</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    </div>
+
+    <div class="modal-body">
+        <div class="mb-3">
+            <label asp-for="CategoryName" class="form-label"></label>
+            <input asp-for="CategoryName" class="form-control" />
+            <span asp-validation-for="CategoryName" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="CategoryDesciption" class="form-label"></label>
+            <textarea asp-for="CategoryDesciption" rows="3" class="form-control"></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="ParentCategoryId" class="form-label"></label>
+            <select asp-for="ParentCategoryId" asp-items="ViewBag.ParentList" class="form-select">
+                <option value="">-- None --</option>
+            </select>
+        </div>
+
+        <div class="form-check mb-3">
+            <input type="checkbox" class="form-check-input" id="IsActive" name="IsActive" value="true"
+            @(Model.IsActive == true ? "checked" : "") />
+            <label class="form-check-label" for="IsActive">Active</label>
+            <input type="hidden" name="IsActive" value="false" />
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <button type="submit" class="btn btn-success">Save</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+    </div>
+</form>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}

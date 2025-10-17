@@ -1,0 +1,11 @@
+﻿@model NguyenLeHaiAnh_HE180328_Assignment1.DataAccess.Models.NewsArticle
+
+<h4>Delete News</h4>
+<p>Are you sure you want to delete “@Model.NewsTitle”?</p>
+
+<form asp-action="Delete" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="NewsArticleId" />
+    <button name="sure" value="true" class="btn btn-danger">Delete</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>

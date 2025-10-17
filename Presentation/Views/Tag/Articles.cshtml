@@ -1,0 +1,151 @@
+@model IEnumerable<NguyenLeHaiAnh_HE180328_Assignment1.DataAccess.Models.NewsArticle>
+@{
+    ViewData["Title"] = $"Articles tagged with '{ViewBag.TagName}'";
+    var isStaff = Context.Session.GetInt32("Role") == 1;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Articles tagged with "<span class="text-primary">@ViewBag.TagName</span>"</h2>
+    <div>
+        <a asp-controller="NewsArticle" 
+           asp-action="Index" 
+           asp-route-tagId="@ViewBag.TagId" 
+           class="btn btn-primary me-2">
+            <i class="bi bi-newspaper"></i> View in News Index
+        </a>
+        <a asp-controller="Tag" asp-action="Index" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Tags
+        </a>
+    </div>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle"></i> No articles found with this tag.
+    </div>
+}
+else
+{
+    <div class="alert alert-success">
+        <i class="bi bi-check-circle"></i> Found <strong>@Model.Count()</strong> article(s) with this tag.
+    </div>
+
+    <table class="table table-bordered table-hover">
+        <thead class="table-light">
+            <tr>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Author</th>
+                <th>Created Date</th>
+                <th>Status</th>
+                <th>Other Tags</th>
+                @if (isStaff)
+                {
+                    <th style="width:100px;">Actions</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var article in Model)
+            {
+                <tr>
+                    <td>
+                        <a asp-controller="NewsArticle" asp-action="Details" asp-route-id="@article.NewsArticleId">
+                            @article.NewsTitle
+                        </a>
+                        @if (!string.IsNullOrWhiteSpace(article.Headline))
+                        {
+                            <br />
+                            <small class="text-muted">@article.Headline</small>
+                        }
+                    </td>
+                    <td>
+                        <span class="badge bg-info">@article.Category?.CategoryName</span>
+                    </td>
+                    <td>@article.CreatedBy?.AccountName</td>
+                    <td>@article.CreatedDate?.ToString("dd/MM/yyyy")</td>
+                    <td>
+                        @if (article.NewsStatus == true)
+                        {
+                            <span class="badge bg-success">Active</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Inactive</span>
+                        }
+                    </td>
+                    <td>
+                        @foreach (var tag in article.Tags)
+                        {
+                            <a asp-controller="NewsArticle"
+                               asp-action="Index" 
+                               asp-route-tagId="@tag.TagId"
+                               class="badge bg-secondary text-decoration-none me-1"
+                               title="Filter by this tag">
+                                @tag.TagName
+                            </a>
+                        }
+                    </td>
+                    @if (isStaff)
+                    {
+                        <td>
+                            <button class="btn btn-sm btn-warning btn-edit"
+                                    data-url="@Url.Action("EditPopup", "NewsArticle", new { id = article.NewsArticleId })">
+                                Edit
+                            </button>
+                        </td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<!-- Modal for popup form -->
+@if (isStaff)
+{
+    <div class="modal fade" id="crudModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content"></div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    @if (isStaff)
+    {
+        <script>
+            $(function () {
+                const modal = new bootstrap.Modal('#crudModal');
+
+                $('.btn-edit').on('click', function () {
+                    loadForm($(this).data('url'));
+                });
+
+                function loadForm(url) {
+                    $.get(url, function (html) {
+                        $('#crudModal .modal-content').html(html);
+                        bindAjaxForm();
+                        modal.show();
+                    });
+                }
+
+                function bindAjaxForm() {
+                    $('form[data-ajax="true"]').on('submit', function (e) {
+                        e.preventDefault();
+                        const f = $(this);
+                        $.post(f.attr('action'), f.serialize(), function (res) {
+                            if (res.success) {
+                                location.reload();
+                            } else {
+                                $('#crudModal .modal-content').html(res);
+                                bindAjaxForm();
+                            }
+                        });
+                    });
+                }
+            });
+        </script>
+    }
+}

@@ -1,0 +1,61 @@
+﻿@model NguyenLeHaiAnh_HE180328_Assignment1.DataAccess.Models.SystemAccount
+@Html.ValidationSummary(false, "", new { @class = "text-danger" })
+
+<form asp-action="@(Model.AccountId == 0 ? "Create" : "Edit")" method="post" data-ajax="true">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="AccountId" />
+
+    <div class="modal-header">
+        <h5 class="modal-title">@(Model.AccountId == 0 ? "Create Account" : "Edit Account")</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    </div>
+
+    <div class="modal-body">
+        <div class="mb-3">
+            <label asp-for="AccountName" class="form-label"></label>
+            <input asp-for="AccountName" class="form-control" />
+            <span asp-validation-for="AccountName" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="AccountEmail" class="form-label"></label>
+            <input asp-for="AccountEmail"
+                   class="form-control"
+                   readonly="@(Model.AccountId != 0 ? "readonly" : null)" />
+            <span asp-validation-for="AccountEmail" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="AccountRole" class="form-label"></label>
+            <select asp-for="AccountRole" class="form-select">
+                <option value="">-- Select --</option>
+                <option value="1">Staff</option>
+                <option value="2">Lecturer</option>
+            </select>
+            <span asp-validation-for="AccountRole" class="text-danger"></span>
+        </div>
+
+        @if (Model.AccountId == 0)
+        {
+            <div class="mb-3">
+                <label class="form-label">Password</label>
+                <input name="password" type="text" class="form-control" />
+                @if (ViewData.ModelState.ContainsKey("AccountPassword"))
+                {
+                    <span class="text-danger">
+                        @ViewData.ModelState["AccountPassword"]?.Errors.FirstOrDefault()?.ErrorMessage
+                    </span>
+                }
+            </div>
+        }
+    </div>
+
+    <div class="modal-footer">
+        <button type="submit" class="btn btn-success">Save</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+    </div>
+</form>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}

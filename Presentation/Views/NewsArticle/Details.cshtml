@@ -1,0 +1,68 @@
+﻿@model NguyenLeHaiAnh_HE180328_Assignment1.DataAccess.Models.NewsArticle
+@{
+    ViewData["Title"] = "News Detail";
+}
+
+<h2>News Detail</h2>
+
+<table class="table table-bordered">
+    <tr><th>ID</th><td>@Model.NewsArticleId</td></tr>
+    <tr><th>Title</th><td>@Model.NewsTitle</td></tr>
+    <tr><th>Headline</th><td>@Model.Headline</td></tr>
+    <tr><th>Created</th><td>@Model.CreatedDate?.ToString("dd/MM/yyyy")</td></tr>
+    <tr><th>Modified</th><td>@Model.ModifiedDate?.ToString("dd/MM/yyyy")</td></tr>
+    <tr><th>Status</th><td>@(Model.NewsStatus == true ? "Active" : "Inactive")</td></tr>
+    <tr><th>Category</th><td>@Model.Category?.CategoryName</td></tr>
+    <tr><th>Source</th><td>@Model.NewsSource</td></tr>
+    <tr><th>Author</th><td>@Model.CreatedBy?.AccountName</td></tr>
+    <tr><th>Last Updated By</th><td>@Model.UpdatedBy?.AccountName</td></tr>
+    <tr><th>Tags</th><td>@string.Join(", ", Model.Tags.Select(t => t.TagName))</td></tr>
+    <tr>
+        <th>Content</th>
+        <td style="white-space:pre-wrap;">@Model.NewsContent</td>
+    </tr>
+</table>
+
+<a asp-action="Index" class="btn btn-secondary">Back</a>
+
+@if (ViewBag.RelatedArticles != null && ((IEnumerable<NguyenLeHaiAnh_HE180328_Assignment1.DataAccess.Models.NewsArticle>)ViewBag.RelatedArticles).Any())
+{
+    <hr class="my-4" />
+    
+    <h3>Related Articles</h3>
+    <div class="row">
+        @foreach (var article in (IEnumerable<NguyenLeHaiAnh_HE180328_Assignment1.DataAccess.Models.NewsArticle>)ViewBag.RelatedArticles)
+        {
+            <div class="col-md-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <a asp-action="Details" asp-route-id="@article.NewsArticleId">
+                                @article.NewsTitle
+                            </a>
+                        </h5>
+                        <p class="card-text text-muted small">@article.Headline</p>
+                        <p class="card-text">
+                            <small class="text-muted">
+                                <i class="bi bi-folder"></i> @article.Category?.CategoryName
+                                <br />
+                                <i class="bi bi-calendar"></i> @article.CreatedDate?.ToString("dd/MM/yyyy")
+                            </small>
+                        </p>
+                        <div class="mt-2">
+                            @foreach (var tag in article.Tags.Take(3))
+                            {
+                                <span class="badge bg-secondary me-1">@tag.TagName</span>
+                            }
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <a asp-action="Details" asp-route-id="@article.NewsArticleId" class="btn btn-sm btn-primary">
+                            Read More
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

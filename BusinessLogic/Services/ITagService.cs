@@ -1,0 +1,16 @@
+﻿using System.Collections.Generic;
+using NguyenLeHaiAnh_HE180328_Assignment1.DataAccess.Models;
+
+namespace NguyenLeHaiAnh_HE180328_Assignment1.BusinessLogic
+{
+    public interface ITagService
+    {
+        IEnumerable<Tag> GetAll();
+        Tag? Get(int id);
+        void Add(Tag tag);
+        (bool Success, string Message) Update(Tag tag);
+        bool Delete(int id);
+        IEnumerable<Tag> Search(string? tagName);
+        IEnumerable<NewsArticle> GetArticlesByTag(int tagId);
+    }
+}

@@ -1,0 +1,125 @@
+﻿@model IEnumerable<NguyenLeHaiAnh_HE180328_Assignment1.DataAccess.Models.Tag>
+@{
+    ViewData["Title"] = "Tags";
+}
+
+<h2>Tag Management</h2>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<form method="get" asp-action="Index" class="mb-3 d-flex">
+    <input type="text" name="search" class="form-control me-2" placeholder="Search by Tag Name..."
+           value="@ViewBag.Search" />
+    <button type="submit" class="btn btn-primary">Filter</button>
+</form>
+
+<button id="btnCreate" class="btn btn-success mb-3"
+        data-url="@Url.Action("CreatePopup", "Tag")">
+    + New Tag
+</button>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Tag Name</th>
+            <th>Note</th>
+            <th style="width: 220px;">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var tag in Model)
+        {
+            <tr>
+                <td>@tag.TagName</td>
+                <td>@tag.Note</td>
+                <td>
+                    <button class="btn btn-sm btn-warning btn-edit"
+                            data-url="@Url.Action("EditPopup", "Tag", new { id = tag.TagId })">
+                        Edit
+                    </button>
+                    <form asp-action="Delete" asp-route-id="@tag.TagId" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-sm btn-danger"
+                                onclick="return confirm('Are you sure you want to delete this tag?');">
+                            Delete
+                        </button>
+                    </form>
+                    <a asp-action="Articles" asp-route-id="@tag.TagId" class="btn btn-sm btn-info">
+                        Articles
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (ViewBag.TotalPages > 1)
+{
+    <nav>
+        <ul class="pagination">
+            @for (int i = 1; i <= (int)ViewBag.TotalPages; i++)
+            {
+                <li class="page-item @(ViewBag.CurrentPage == i ? "active" : "")">
+                    <a class="page-link"
+                       href="@Url.Action("Index", "Tag", new { search = ViewBag.Search, page = i })">
+                        @i
+                    </a>
+                </li>
+            }
+        </ul>
+    </nav>
+}
+
+<div class="modal fade" id="crudModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content"></div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(function () {
+            const modal = new bootstrap.Modal('#crudModal');
+
+            $('#btnCreate').on('click', function () {
+                loadForm($(this).data('url'));
+            });
+
+            // Re-bind event for edit buttons that might be loaded with the page
+            $('table').on('click', '.btn-edit', function () {
+                loadForm($(this).data('url'));
+            });
+
+            function loadForm(url) {
+                $.get(url, function (html) {
+                    $('#crudModal .modal-content').html(html);
+                    bindAjaxForm();
+                    modal.show();
+                });
+            }
+
+            function bindAjaxForm() {
+                $('form[data-ajax="true"]').on('submit', function (e) {
+                    e.preventDefault();
+                    const f = $(this);
+                    $.post(f.attr('action'), f.serialize(), function (res) {
+                        if (res.success) {
+                            location.reload();
+                        } else {
+                            $('#crudModal .modal-content').html(res);
+                            bindAjaxForm(); // Re-bind form after validation error
+                        }
+                    });
+                });
+            }
+        });
+    </script>
+
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}

@@ -1,0 +1,45 @@
+﻿@model NguyenLeHaiAnh_HE180328_Assignment1.DataAccess.Models.SystemAccount
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "My Profile";
+}
+
+<h2>My Profile</h2>
+
+@Html.ValidationSummary(false, "", new { @class = "text-danger" })
+
+<form asp-action="Profile" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="AccountId" />
+
+    <div class="mb-3">
+        <label asp-for="AccountName" class="form-label"></label>
+        <input asp-for="AccountName" class="form-control" />
+        <span asp-validation-for="AccountName" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="AccountEmail" class="form-label"></label>
+        <input asp-for="AccountEmail" class="form-control" readonly />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Role</label>
+        <input class="form-control" value="@(Model.AccountRole == 1 ? "Staff" : "Lecturer")" readonly />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">New Password</label>
+        <input name="newPassword" type="password" class="form-control" />
+        @if (!string.IsNullOrEmpty(ViewBag.PasswordError))
+        {
+            <span class="text-danger">@ViewBag.PasswordError</span>
+        }
+    </div>
+
+    <button type="submit" class="btn btn-primary">Update</button>
+</form>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}

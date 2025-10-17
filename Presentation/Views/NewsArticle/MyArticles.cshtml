@@ -1,0 +1,99 @@
+﻿@model IEnumerable<NguyenLeHaiAnh_HE180328_Assignment1.DataAccess.Models.NewsArticle>
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "My Articles";
+}
+
+<h2>My News Articles</h2>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<button class="btn btn-primary mb-3"
+        id="btnCreate"
+        data-url="@Url.Action("CreatePopup", "NewsArticle")">
+    + Create New
+</button>
+
+<table class="table table-bordered table-striped">
+    <thead class="table-light">
+        <tr>
+            <th>Title</th>
+            <th>Category</th>
+            <th>Created Date</th>
+            <th>Status</th>
+            <th style="width:140px;">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var n in Model)
+        {
+            <tr>
+                <td>
+                    <a asp-action="Details" asp-route-id="@n.NewsArticleId">@n.NewsTitle</a>
+                </td>
+                <td>@n.Category?.CategoryName</td>
+                <td>@n.CreatedDate?.ToString("yyyy-MM-dd")</td>
+                <td>@(n.NewsStatus == true ? "Active" : "Inactive")</td>
+                <td>
+                    <button class="btn btn-sm btn-warning btn-edit"
+                            data-url="@Url.Action("EditPopup", "NewsArticle", new { id = n.NewsArticleId })">
+                        Edit
+                    </button>
+                    <a asp-action="Delete" asp-route-id="@n.NewsArticleId"
+                       class="btn btn-sm btn-danger"
+                       onclick="return confirm('Are you sure you want to delete this article?');">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="modal fade" id="crudModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content"></div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(function () {
+            const modal = new bootstrap.Modal('#crudModal');
+
+            $('#btnCreate').on('click', () =>
+                loadForm($('#btnCreate').data('url')));
+
+            $('.btn-edit').on('click', function () {
+                loadForm($(this).data('url'));
+            });
+
+            function loadForm(url) {
+                $.get(url, html => {
+                    $('#crudModal .modal-content').html(html);
+                    bindAjaxForm();
+                    modal.show();
+                });
+            }
+
+            function bindAjaxForm() {
+                $('form[data-ajax="true"]').on('submit', function (e) {
+                    e.preventDefault();
+                    const f = $(this);
+                    $.post(f.attr('action'), f.serialize(), res => {
+                        if (res.success) location.reload();
+                        else {
+                            $('#crudModal .modal-content').html(res);
+                            bindAjaxForm();
+                        }
+                    });
+                });
+            }
+        });
+    </script>
+}

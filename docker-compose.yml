@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    container_name: fm_db
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "YourStrong!Passw0rd"
+      MSSQL_PID: "Express"
+    ports:
+      - "1444:1433"
+    volumes:
+      - mssql-data:/var/opt/mssql
+
+  db-init:
+    image: mcr.microsoft.com/mssql-tools
+    depends_on:
+      - db
+    volumes:
+      - ./docker/db-init/run-init.sh:/scripts/run-init.sh:ro
+      - ./FUNewsManagement.sql:/scripts/FUNewsManagement.sql:ro
+    entrypoint: ["/bin/bash", "/scripts/run-init.sh"]
+    environment:
+      SA_PASSWORD: "YourStrong!Passw0rd"
+      MSSQL_HOST: "db"
+
+  web:
+    build: .
+    depends_on:
+      - db
+    ports:
+      - "5000:80"
+    environment:
+      ConnectionStrings__DefaultConnection: "Server=db,1433;Database=FUNewsManagement;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True"
+      # Keep app listening on port 80 inside container
+      ASPNETCORE_URLS: "http://+:80"
+    volumes:
+      # Persist data protection keys so session/antiforgery keys survive container restarts
+      - ./data-protection:/root/.aspnet/DataProtection-Keys
+
+volumes:
+  mssql-data:
+    name: fm_mssql_data

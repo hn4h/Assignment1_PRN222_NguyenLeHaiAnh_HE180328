@@ -1,0 +1,42 @@
+﻿@model NguyenLeHaiAnh_HE180328_Assignment1.DataAccess.Models.Tag
+
+<form asp-action="@(Model.TagId == 0 ? "Create" : "Edit")" data-ajax="true" method="post">
+    @Html.AntiForgeryToken()
+    <div>@Model.TagId</div>
+    <div class="modal-header">
+        <h5 class="modal-title">
+            @(Model.TagId == 0 ? "Create New Tag" : "Edit Tag")
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+
+    <div class="modal-body">
+    <!-- Tag Name -->
+    <div class="mb-3">
+        <label asp-for="TagName" class="form-label">Tag Name</label>
+            <input name="TagName"
+                   value="@Model.TagName"
+                   class="form-control"
+                   placeholder="Enter tag name..."
+            @(Model.TagId != 0 ? "readonly" : "") />
+
+        <span asp-validation-for="TagName" class="text-danger"></span>
+    </div>
+
+    <!-- Note -->
+    <div class="mb-3">
+        <label asp-for="Note" class="form-label">Note</label>
+        <textarea asp-for="Note"
+                  class="form-control"
+                  rows="3"
+                  placeholder="Optional note about this tag..."></textarea>
+        <span asp-validation-for="Note" class="text-danger"></span>
+    </div>
+</div>
+
+
+    <div class="modal-footer">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+    </div>
+</form>
